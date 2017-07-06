@@ -1,0 +1,11 @@
+* * * * * root dotnet /app/out/dotnet-cron.dll >> /var/log/cron.log 2>&1
+
+#* * * * * *
+#| | | | | | 
+#| | | | | +-- Year              (range: 1900-3000)
+#| | | | +---- Day of the Week   (range: 1-7, 1 standing for Monday)
+#| | | +------ Month of the Year (range: 1-12)
+#| | +-------- Day of the Month  (range: 1-31)
+#| +---------- Hour              (range: 0-23)
+#+------------ Minute            (range: 0-59)
+# Cron requires a blank space at the end of the file so leave this here.

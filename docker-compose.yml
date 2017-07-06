@@ -1,0 +1,6 @@
+version: "3"
+
+services:
+  console:
+    build: .
+    container_name: recurring-console
