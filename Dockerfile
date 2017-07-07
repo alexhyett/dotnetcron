@@ -4,10 +4,10 @@ ARG BUILDCONFIG=RELEASE
 
 # Copy project files to avoid restoring packages if they haven't changed
 COPY *.csproj ./build/
-RUN dotnet restore ./build/
-
-COPY . ./build/
 WORKDIR /build/
+RUN dotnet restore
+
+COPY . .
 RUN dotnet publish -c $BUILDCONFIG -o out
 
 # build runtime image
