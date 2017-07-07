@@ -1,4 +1,4 @@
-* * * * * root dotnet /app/out/dotnet-cron.dll >> /var/log/cron.log 2>&1
+* * * * * root /app/run_app.sh >> /var/log/cron.log 2>&1
 
 #* * * * * *
 #| | | | | | 

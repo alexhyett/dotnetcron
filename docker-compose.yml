@@ -4,3 +4,5 @@ services:
   console:
     build: .
     container_name: recurring-console
+    environment:
+      - TEST_ENV=TestValue3
