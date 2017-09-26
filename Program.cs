@@ -1,13 +1,23 @@
 ﻿using System;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
-namespace test_dotnet
+namespace DotNetCron
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"This program should be running on a schedule: {DateTime.Now}");
-            Console.WriteLine($"TEST_ENV={Environment.GetEnvironmentVariable("TEST_ENV")}");
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional:true, reloadOnChange:true)  
+                //.AddEnvironmentVariables(prefix: "CRON_")           
+                .Build();
+
+            var consoleSettings = new ConsoleSettings();
+            configuration.GetSection("Console").Bind(consoleSettings);
+
+            Console.WriteLine($"{DateTime.UtcNow}: Output String: '{consoleSettings.OutputString}'");
         }
     }
 }

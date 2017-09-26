@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:1.1.1-sdk AS build
+FROM microsoft/dotnet:2.0.0-sdk AS build
 
 ARG BUILDCONFIG=RELEASE
 
@@ -11,21 +11,21 @@ COPY . .
 RUN dotnet publish -c $BUILDCONFIG -o out
 
 # build runtime image
-FROM microsoft/dotnet:1.1.1-runtime 
+FROM microsoft/dotnet:2.0.0-runtime 
 WORKDIR /app
 COPY --from=build /build/out ./
-
-# Add export environment variable script
-COPY export_env.sh .
-COPY run_app.sh .
-RUN chmod +x export_env.sh run_app.sh
 
 # Install Cron
 RUN apt-get update -qq && apt-get -y install cron -qq --force-yes
 
-# Set up schedule
-ADD schedule /etc/cron.d/schedule
-RUN chmod 0644 /etc/cron.d/schedule
+# Add export environment variable script and schedule
+COPY *.sh ./
+COPY schedule /etc/cron.d/schedule
+RUN sed -i 's/\r//' export_env.sh \
+    && sed -i 's/\r//' run_app.sh \
+    && sed -i 's/\r//' /etc/cron.d/schedule \
+    && chmod +x export_env.sh run_app.sh \
+    && chmod 0644 /etc/cron.d/schedule
 
 # Create log file
 RUN touch /var/log/cron.log

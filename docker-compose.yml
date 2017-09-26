@@ -5,4 +5,4 @@ services:
     build: .
     container_name: recurring-console
     environment:
-      - TEST_ENV=TestValue3
+      - CRON_Console:OutputString=NewTestString
