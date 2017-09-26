@@ -11,7 +11,7 @@ namespace DotNetCron
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional:true, reloadOnChange:true)  
-                //.AddEnvironmentVariables(prefix: "CRON_")           
+                .AddEnvironmentVariables(prefix: "CRON_")           
                 .Build();
 
             var consoleSettings = new ConsoleSettings();
