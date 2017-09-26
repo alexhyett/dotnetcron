@@ -11,10 +11,13 @@ However, the whole point of Docker is not to have a hardcoded values which are l
 You therefore need to copy the environment variables to a script when your container starts and then set up your environment as part of the cron script.
 
 The docker file attached does the following:
-1. Installs cron on the standard microsoft/dotnet:1.1.1-sdk image.
+1. Copies your project files across and restores them.
 2. Copies your application files across to the docker image.
-3. Copies the schedule file across to the docker image.
-4. Restores and Publishes your dotnet core image. 
+3. Publishes your application to the out location.
+3. Creates a new 2.0.0-runtime image.
+4. Copies your published app to the new image.
+5. Installs cron into the runtime image.
+6. Copies scripts and schedule file, removes carrage returns and sets permissions
 5. Copies environment variables so that cron can access them.
 6. Runs cron and outputs the contents of the /var/log/cron.log file to the screen.
 
