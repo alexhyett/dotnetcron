@@ -2,6 +2,9 @@
 
 This is an example project showing you how to run a console app in a schedule in a docker container.
 
+For more information see a full breakdown on my blog:
+https://www.alexhyett.com/scheduled-dotnet-core-console/
+
 The docker image makes use of cron which is a unix utility for running commands on a schedule.
 
 The issue I came across with running console apps in cron is that the environment variables aren't visible to cron jobs. You have to specify the environment variables up front before running your job.
