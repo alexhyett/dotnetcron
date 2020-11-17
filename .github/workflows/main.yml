@@ -1,0 +1,55 @@
+# This workflow integrates ShiftLeft NG SAST with GitHub
+# Visit https://docs.shiftleft.io for help
+name: Analyze with ShiftLeft NG SAST
+
+on:
+  schedule:
+    - cron: "0 * * * *"  
+  push: # include to analyze when you push
+    branches:
+      - master
+      - feature/*
+      - fix/*
+  pull_request: # include to analyze when you create a pull request
+    branches:
+      - master
+
+jobs:
+  NG SAST-Build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Download ShiftLeft cli
+      run: |
+        Invoke-WebRequest -Uri 'https://cdn.shiftleft.io/download/sl-latest-windows-x64.zip' -OutFile sl.zip
+        Expand-Archive -Path sl.zip -DestinationPath .
+    - name: Build console app
+      run: dotnet build netcoreConsole
+    - name: Analyze with ngsast
+      run: .\sl analyze --app netcoreConsole --tag branch=$Env:GITHUB_REF --csharp --dotnet-core --cpg netcoreConsole/netcoreConsole/netcoreConsole.csproj
+      env:
+        SHIFTLEFT_ORG_ID: e7e09771-d0c5-488b-a4bd-57676448ad94
+        SHIFTLEFT_ACCESS_TOKEN: eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MDU2NDkwMjEsImlzcyI6IlNoaWZ0TGVmdCIsIm9yZ0lEIjoiZTdlMDk3NzEtZDBjNS00ODhiLWE0YmQtNTc2NzY0NDhhZDk0IiwidXNlcklEIjoiMjBlM2JkYzktNGE4NC00OWZmLTg2OGQtOGQxNzMzMWJhN2EwIiwic2NvcGVzIjpbInNlYXRzOndyaXRlIiwiZXh0ZW5kZWQiLCJhcGk6djIiLCJ1cGxvYWRzOndyaXRlIiwibG9nOndyaXRlIiwicGlwZWxpbmVzdGF0dXM6cmVhZCIsIm1ldHJpY3M6d3JpdGUiLCJwb2xpY2llczpjdXN0b21lciJdfQ.GyaChDMxTKc5Rj6zAzfxzMxEoaCZCJO49_-0oZBooN8WoykuqSlXxnd71MHdeJdUGaMh8IrOuPysWecW1HsbJUtq6Q3jqYZG_2bNnyY0upuwtvC7mujkyaqRIigBkr1Nu_spMBbz_dWrkps_cvNHILqQDewYLw7eYBcGnIKPbxEAEJRSg5Z2TktuQvbYlbN0whZd1sJh2MEkniwQ62x5YWXxVxREbsLu8zzO-VTb52yNLROz8oU8-m73RwkmKXlPHXrs4KDZXlJO9wEkrgRxvteGEA4p8MJNkKXGhDS-K9f5xT7bvzrwKg1QCI3STt0Kre2sVSvcC4bdkT5UuNVMQQ
+
+    - name: Build web api
+      run: dotnet build netcoreWebapi
+    - name: Analyze with ngsast
+      run: .\sl analyze --app netcoreWebapi --tag branch=$Env:GITHUB_REF --csharp --dotnet-core --cpg netcoreWebapi/netcoreWebapi.csproj
+      env:
+        SHIFTLEFT_ORG_ID: e7e09771-d0c5-488b-a4bd-57676448ad94
+        SHIFTLEFT_ACCESS_TOKEN: eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MDU2NDkwMjEsImlzcyI6IlNoaWZ0TGVmdCIsIm9yZ0lEIjoiZTdlMDk3NzEtZDBjNS00ODhiLWE0YmQtNTc2NzY0NDhhZDk0IiwidXNlcklEIjoiMjBlM2JkYzktNGE4NC00OWZmLTg2OGQtOGQxNzMzMWJhN2EwIiwic2NvcGVzIjpbInNlYXRzOndyaXRlIiwiZXh0ZW5kZWQiLCJhcGk6djIiLCJ1cGxvYWRzOndyaXRlIiwibG9nOndyaXRlIiwicGlwZWxpbmVzdGF0dXM6cmVhZCIsIm1ldHJpY3M6d3JpdGUiLCJwb2xpY2llczpjdXN0b21lciJdfQ.GyaChDMxTKc5Rj6zAzfxzMxEoaCZCJO49_-0oZBooN8WoykuqSlXxnd71MHdeJdUGaMh8IrOuPysWecW1HsbJUtq6Q3jqYZG_2bNnyY0upuwtvC7mujkyaqRIigBkr1Nu_spMBbz_dWrkps_cvNHILqQDewYLw7eYBcGnIKPbxEAEJRSg5Z2TktuQvbYlbN0whZd1sJh2MEkniwQ62x5YWXxVxREbsLu8zzO-VTb52yNLROz8oU8-m73RwkmKXlPHXrs4KDZXlJO9wEkrgRxvteGEA4p8MJNkKXGhDS-K9f5xT7bvzrwKg1QCI3STt0Kre2sVSvcC4bdkT5UuNVMQQ
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.0
+    - name: Build netfwWebapi
+      run: msbuild netfwWebapi/netfwWebapi.sln
+    - name: Analyze with ngsast
+      run: .\sl analyze --app netfwWebapi --tag branch=$Env:GITHUB_REF --csharp --cpg netfwWebapi/netfwWebapi.sln
+      env:
+        SHIFTLEFT_ORG_ID: e7e09771-d0c5-488b-a4bd-57676448ad94
+        SHIFTLEFT_ACCESS_TOKEN: eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MDU2NDkwMjEsImlzcyI6IlNoaWZ0TGVmdCIsIm9yZ0lEIjoiZTdlMDk3NzEtZDBjNS00ODhiLWE0YmQtNTc2NzY0NDhhZDk0IiwidXNlcklEIjoiMjBlM2JkYzktNGE4NC00OWZmLTg2OGQtOGQxNzMzMWJhN2EwIiwic2NvcGVzIjpbInNlYXRzOndyaXRlIiwiZXh0ZW5kZWQiLCJhcGk6djIiLCJ1cGxvYWRzOndyaXRlIiwibG9nOndyaXRlIiwicGlwZWxpbmVzdGF0dXM6cmVhZCIsIm1ldHJpY3M6d3JpdGUiLCJwb2xpY2llczpjdXN0b21lciJdfQ.GyaChDMxTKc5Rj6zAzfxzMxEoaCZCJO49_-0oZBooN8WoykuqSlXxnd71MHdeJdUGaMh8IrOuPysWecW1HsbJUtq6Q3jqYZG_2bNnyY0upuwtvC7mujkyaqRIigBkr1Nu_spMBbz_dWrkps_cvNHILqQDewYLw7eYBcGnIKPbxEAEJRSg5Z2TktuQvbYlbN0whZd1sJh2MEkniwQ62x5YWXxVxREbsLu8zzO-VTb52yNLROz8oU8-m73RwkmKXlPHXrs4KDZXlJO9wEkrgRxvteGEA4p8MJNkKXGhDS-K9f5xT7bvzrwKg1QCI3STt0Kre2sVSvcC4bdkT5UuNVMQQ
